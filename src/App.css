@@ -1,38 +1,272 @@
-.App {
-  text-align: center;
+/* Reset et styles de base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f9fafb;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
+.app-container {
+  width: 100%;
   min-height: 100vh;
+  overflow: auto;
+  background-color: #f9fafb;
+  padding: 24px;
+}
+
+/* Header */
+.app-header {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.app-title {
+  font-size: 30px;
+  font-weight: bold;
+  color: #1f2937;
+  margin: 0;
+}
+
+.planning-name-input {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 18px;
+  font-weight: 600;
+  min-width: 200px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Buttons */
+.btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.btn:hover {
+  opacity: 0.9;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.btn-blue {
+  background-color: #3b82f6;
+}
+
+.btn-blue:hover {
+  background-color: #2563eb;
+}
+
+.btn-green {
+  background-color: #10b981;
+}
+
+.btn-green:hover {
+  background-color: #059669;
+}
+
+.btn-purple {
+  background-color: #8b5cf6;
+}
+
+.btn-purple:hover {
+  background-color: #7c3aed;
+}
+
+.btn-orange {
+  background-color: #f97316;
+}
+
+.btn-orange:hover {
+  background-color: #ea580c;
+}
+
+.btn-red {
+  background-color: #ef4444;
+  padding: 8px;
+}
+
+.btn-red:hover {
+  background-color: #dc2626;
+}
+
+/* Grid layout */
+.grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+@media (max-width: 1024px) {
+  .grid-2col {
+    grid-template-columns: 1fr;
   }
-  to {
-    transform: rotate(360deg);
+}
+
+/* Section cards */
+.section-card {
+  background-color: white;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #1f2937;
+}
+
+/* Form elements */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: #374151;
+}
+
+.form-input {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-select {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+  background-color: white;
+}
+
+/* Item rows */
+.item-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.item-list {
+  margin-bottom: 16px;
+}
+
+/* Color picker */
+.color-picker {
+  width: 64px;
+  height: 40px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* Input sizes */
+.input-flex {
+  flex: 1;
+  min-width: 200px;
+}
+
+.input-sm {
+  width: 96px;
+}
+
+.input-md {
+  width: 160px;
+}
+
+/* SVG Container */
+.svg-container {
+  overflow-x: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background-color: white;
+  padding: 16px;
+}
+
+/* Hidden input */
+.hidden-input {
+  display: none;
+}
+
+/* Icons */
+.icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Utilities */
+.mb-4 {
+  margin-bottom: 16px;
+}
+
+.gap-2 {
+  gap: 8px;
+}
+
+.text-gray {
+  color: #6b7280;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .app-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .header-actions {
+    width: 100%;
+  }
+  
+  .btn {
+    flex: 1;
+    justify-content: center;
   }
 }

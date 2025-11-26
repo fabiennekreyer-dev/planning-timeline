@@ -1,8 +1,8 @@
+import './App.css';
 import React, { useState, useRef } from 'react';
 import { Plus, Trash2, Save, Upload, Download } from 'lucide-react';
 
 export default function PlanningTimeline() {
-  // Fonction pour obtenir la date du jour au format YYYY-MM-DD
   const getTodayDate = () => {
     const today = new Date();
     const year = today.getFullYear();
@@ -18,17 +18,15 @@ export default function PlanningTimeline() {
   const [startDate, setStartDate] = useState(getTodayDate());
   const [numLines, setNumLines] = useState(5);
   const [planningName, setPlanningName] = useState('Mon Planning');
-  
+
   const [resources, setResources] = useState([
     { id: 1, name: 'Ressource 1', color: '#f1aad0' },
     { id: 2, name: 'Ressource 2', color: '#bce295' },
     { id: 3, name: 'Ressource 3', color: '#d8d8d8' }
   ]);
-  
+
   const [tasks, setTasks] = useState([]);
-  
   const [milestones, setMilestones] = useState([]);
-  
   const [verticalLines, setVerticalLines] = useState([]);
 
   const addResource = () => {
@@ -81,7 +79,6 @@ export default function PlanningTimeline() {
     setVerticalLines(verticalLines.filter(v => v.id !== id));
   };
 
-  // Sauvegarder le planning
   const savePlanning = () => {
     try {
       const planningData = {
@@ -95,23 +92,22 @@ export default function PlanningTimeline() {
         verticalLines,
         savedAt: new Date().toISOString()
       };
-      
+
       const dataStr = JSON.stringify(planningData, null, 2);
       const dataBlob = new Blob([dataStr], { type: 'application/json' });
       const url = URL.createObjectURL(dataBlob);
       const link = document.createElement('a');
       link.href = url;
-      
-      // Nettoyer le nom du fichier
+
       const safeName = (planningName || 'planning').replace(/[^a-z0-9]/gi, '_');
       const dateStr = new Date().toISOString().split('T')[0];
       link.download = `${safeName}_${dateStr}.json`;
-      
+
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-      
+
       alert('Planning sauvegardé avec succès !');
     } catch (error) {
       alert('Erreur lors de la sauvegarde : ' + error.message);
@@ -119,22 +115,19 @@ export default function PlanningTimeline() {
     }
   };
 
-  // Charger un planning
   const loadPlanning = (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    
+
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
         const planningData = JSON.parse(e.target.result);
-        
-        // Vérifier que les données sont valides
+
         if (!planningData || typeof planningData !== 'object') {
           throw new Error('Format de fichier invalide');
         }
-        
-        // Charger les données avec des valeurs par défaut si nécessaire
+
         if (planningData.name) setPlanningName(planningData.name);
         if (planningData.numWeeks) setNumWeeks(planningData.numWeeks);
         if (planningData.startDate) setStartDate(planningData.startDate);
@@ -143,27 +136,25 @@ export default function PlanningTimeline() {
         if (planningData.tasks && Array.isArray(planningData.tasks)) setTasks(planningData.tasks);
         if (planningData.milestones && Array.isArray(planningData.milestones)) setMilestones(planningData.milestones);
         if (planningData.verticalLines && Array.isArray(planningData.verticalLines)) setVerticalLines(planningData.verticalLines);
-        
+
         alert('Planning chargé avec succès !');
       } catch (error) {
         alert('Erreur lors du chargement du planning : ' + error.message);
         console.error('Erreur de chargement:', error);
       }
     };
-    
+
     reader.onerror = () => {
       alert('Erreur lors de la lecture du fichier');
     };
-    
+
     reader.readAsText(file);
-    
-    // Réinitialiser l'input pour permettre de charger le même fichier à nouveau
+
     if (event.target) {
       event.target.value = '';
     }
   };
 
-  // Exporter en image PNG
   const exportToPNG = () => {
     try {
       const svg = svgRef.current;
@@ -172,13 +163,11 @@ export default function PlanningTimeline() {
         return;
       }
 
-      // Cloner le SVG pour ne pas modifier l'original
       const svgClone = svg.cloneNode(true);
-      
-      // Masquer les lignes horizontales et leurs labels dans le clone
+
       const guidelines = svgClone.querySelectorAll('line[stroke-dasharray="3,3"]');
       guidelines.forEach(line => line.style.display = 'none');
-      
+
       const lineLabels = svgClone.querySelectorAll('text[text-anchor="middle"]');
       lineLabels.forEach(text => {
         if (text.textContent && text.textContent.match(/^L\d+$/)) {
@@ -202,16 +191,16 @@ export default function PlanningTimeline() {
           const url = URL.createObjectURL(blob);
           const link = document.createElement('a');
           link.href = url;
-          
+
           const safeName = (planningName || 'planning').replace(/[^a-z0-9]/gi, '_');
           const dateStr = new Date().toISOString().split('T')[0];
           link.download = `${safeName}_${dateStr}.png`;
-          
+
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
           URL.revokeObjectURL(url);
-          
+
           alert('Export PNG réussi !');
         });
       };
@@ -227,161 +216,13 @@ export default function PlanningTimeline() {
     }
   };
 
-  // Imprimer le planning
-  const printPlanning = () => {
-    try {
-      const svg = svgRef.current;
-      if (!svg) {
-        alert('Planning non disponible pour l\'impression');
-        return;
-      }
-
-      // Convertir le SVG en image pour l'impression
-      const svgData = new XMLSerializer().serializeToString(svg);
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      const img = new Image();
-
-      canvas.width = svg.width.baseVal.value;
-      canvas.height = svg.height.baseVal.value;
-
-      img.onload = () => {
-        ctx.fillStyle = 'white';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 0, 0);
-        
-        const imageData = canvas.toDataURL('image/png');
-        
-        // Créer le HTML pour le nouvel onglet
-        const printHTML = `
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <title>Impression - ${planningName}</title>
-              <style>
-                * {
-                  margin: 0;
-                  padding: 0;
-                  box-sizing: border-box;
-                }
-                body {
-                  margin: 0;
-                  padding: 20px;
-                  background: #f5f5f5;
-                  font-family: Arial, sans-serif;
-                }
-                .container {
-                  max-width: 1400px;
-                  margin: 0 auto;
-                  background: white;
-                  padding: 30px;
-                  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                }
-                h2 {
-                  text-align: center;
-                  margin-bottom: 30px;
-                  color: #333;
-                  font-size: 24px;
-                }
-                img {
-                  max-width: 100%;
-                  height: auto;
-                  display: block;
-                  margin: 0 auto;
-                  border: 1px solid #ddd;
-                }
-                .buttons {
-                  text-align: center;
-                  margin-top: 30px;
-                  display: flex;
-                  gap: 15px;
-                  justify-content: center;
-                }
-                button {
-                  padding: 12px 24px;
-                  font-size: 16px;
-                  border: none;
-                  border-radius: 5px;
-                  cursor: pointer;
-                  font-weight: 500;
-                }
-                .print-btn {
-                  background: #4CAF50;
-                  color: white;
-                }
-                .print-btn:hover {
-                  background: #45a049;
-                }
-                .close-btn {
-                  background: #f44336;
-                  color: white;
-                }
-                .close-btn:hover {
-                  background: #da190b;
-                }
-                @media print {
-                  body {
-                    background: white;
-                    padding: 0;
-                  }
-                  .container {
-                    box-shadow: none;
-                    padding: 0;
-                  }
-                  .buttons {
-                    display: none;
-                  }
-                  img {
-                    border: none;
-                  }
-                  @page {
-                    size: landscape;
-                    margin: 0.5cm;
-                  }
-                }
-              </style>
-            </head>
-            <body>
-              <div class="container">
-                <h2>${planningName}</h2>
-                <img src="${imageData}" alt="Planning" />
-                <div class="buttons">
-                  <button class="print-btn" onclick="window.print()">🖨️ Imprimer / Enregistrer en PDF</button>
-                  <button class="close-btn" onclick="window.close()">✖️ Fermer</button>
-                </div>
-              </div>
-            </body>
-          </html>
-        `;
-        
-        // Ouvrir dans un nouvel onglet
-        const blob = new Blob([printHTML], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        window.open(url, '_blank');
-        
-        // Nettoyer l'URL après un délai
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-      };
-
-      img.onerror = () => {
-        alert('Erreur lors de la génération de l\'aperçu d\'impression');
-      };
-
-      img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
-      
-    } catch (error) {
-      alert('Erreur lors de l\'impression : ' + error.message);
-      console.error('Erreur d\'impression:', error);
-    }
-  };
-
   const getMilestoneIcon = (type) => {
     switch(type) {
       case 'meeting': return { emoji: '👥', color: '#3498db' };
       case 'document': return { emoji: '📄', color: '#f39c12' };
       case 'app': return { emoji: '📱', color: '#9b59b6' };
       case 'production': return { emoji: '⭐', color: '#e74c3c', textColor: '#e74c3c' };
-      case 'divers': return { emoji: '🚩', color: '#3498db' };
+      case 'divers': return { emoji: '◆', color: '#3498db' };
       default: return { emoji: '📅', color: '#95a5a6' };
     }
   };
@@ -420,91 +261,76 @@ export default function PlanningTimeline() {
   const maxLine = numLines;
 
   return (
-    <div className="w-full h-screen overflow-auto bg-gray-50 p-6">
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center gap-4">
-          <h1 className="text-3xl font-bold text-gray-800">Générateur de Planning Timeline</h1>
+    <div className="app-container">
+      <div className="app-header">
+        <div className="header-left">
+          <h1 className="app-title">Générateur de Planning Timeline</h1>
           <input
             type="text"
             value={planningName}
             onChange={(e) => setPlanningName(e.target.value)}
-            className="border rounded px-3 py-2 text-lg font-semibold"
+            className="planning-name-input"
             placeholder="Nom du planning"
           />
         </div>
-        
-        {/* Boutons d'actions */}
-        <div className="flex gap-2">
-          <button
-            onClick={savePlanning}
-            className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-            title="Sauvegarder le planning"
-          >
-            <Save className="w-4 h-4" />
+
+        <div className="header-actions">
+          <button onClick={savePlanning} className="btn btn-blue" title="Sauvegarder le planning">
+            <Save className="icon" />
             Sauvegarder
           </button>
-          
+
           <input
             ref={fileInputRef}
             type="file"
             accept=".json"
             onChange={loadPlanning}
-            className="hidden"
+            className="hidden-input"
           />
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-            title="Charger un planning"
-          >
-            <Upload className="w-4 h-4" />
+          <button onClick={() => fileInputRef.current?.click()} className="btn btn-green" title="Charger un planning">
+            <Upload className="icon" />
             Charger
           </button>
-          
-          <button
-            onClick={exportToPNG}
-            className="flex items-center gap-2 bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
-            title="Exporter en PNG"
-          >
-            <Download className="w-4 h-4" />
+
+          <button onClick={exportToPNG} className="btn btn-purple" title="Exporter en PNG">
+            <Download className="icon" />
             Export PNG
           </button>
         </div>
       </div>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+
+      <div className="grid-2col">
         {/* Section Timeline */}
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-            Configuration Timeline
-          </h2>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Nombre de semaines</label>
+        <div className="section-card">
+          <h2 className="section-title">Configuration Timeline</h2>
+          <div>
+            <div className="form-group">
+              <label className="form-label">Nombre de semaines</label>
               <input
                 type="number"
                 value={numWeeks}
                 onChange={(e) => setNumWeeks(parseInt(e.target.value) || 1)}
-                className="w-full border rounded px-3 py-2"
+                className="form-input"
                 min="1"
                 max="104"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Date de début</label>
+            <div className="form-group">
+              <label className="form-label">Date de début</label>
               <input
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="w-full border rounded px-3 py-2"
+                className="form-input"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Nombre de lignes horizontales</label>
+            <div className="form-group">
+              <label className="form-label">Nombre de lignes horizontales</label>
               <input
                 type="number"
                 value={numLines}
                 onChange={(e) => setNumLines(parseInt(e.target.value) || 1)}
-                className="w-full border rounded px-3 py-2"
+                className="form-input"
                 min="1"
                 max="10"
               />
@@ -513,39 +339,33 @@ export default function PlanningTimeline() {
         </div>
 
         {/* Section Types de Ressources */}
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-4">Types de Ressources (max 5)</h2>
-          <div className="space-y-3 mb-4">
+        <div className="section-card">
+          <h2 className="section-title">Types de Ressources (max 5)</h2>
+          <div className="item-list">
             {resources.map(resource => (
-              <div key={resource.id} className="flex gap-2 items-center">
+              <div key={resource.id} className="item-row">
                 <input
                   type="text"
                   value={resource.name}
                   onChange={(e) => updateResource(resource.id, 'name', e.target.value)}
-                  className="flex-1 border rounded px-3 py-2"
+                  className="form-input input-flex"
                   placeholder="Nom"
                 />
                 <input
                   type="color"
                   value={resource.color}
                   onChange={(e) => updateResource(resource.id, 'color', e.target.value)}
-                  className="w-16 h-10 border rounded cursor-pointer"
+                  className="color-picker"
                 />
-                <button
-                  onClick={() => deleteResource(resource.id)}
-                  className="p-2 text-red-500 hover:bg-red-50 rounded"
-                >
-                  <Trash2 className="w-4 h-4" />
+                <button onClick={() => deleteResource(resource.id)} className="btn btn-red">
+                  <Trash2 className="icon" />
                 </button>
               </div>
             ))}
           </div>
           {resources.length < 5 && (
-            <button
-              onClick={addResource}
-              className="w-full flex items-center justify-center gap-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-            >
-              <Plus className="w-4 h-4" />
+            <button onClick={addResource} className="btn btn-blue">
+              <Plus className="icon" />
               Ajouter une ressource
             </button>
           )}
@@ -553,34 +373,34 @@ export default function PlanningTimeline() {
       </div>
 
       {/* Section Tâches */}
-      <div className="bg-white p-6 rounded-lg shadow mb-6">
-        <h2 className="text-xl font-semibold mb-4">Barres de Tâches</h2>
-        <div className="space-y-3 mb-4">
+      <div className="section-card">
+        <h2 className="section-title">Barres de Tâches</h2>
+        <div className="item-list">
           {tasks.map(task => (
-            <div key={task.id} className="flex gap-2 items-center flex-wrap">
+            <div key={task.id} className="item-row">
               <input
                 type="text"
                 value={task.name}
                 onChange={(e) => updateTask(task.id, 'name', e.target.value)}
-                className="flex-1 min-w-[200px] border rounded px-3 py-2"
+                className="form-input input-flex"
                 placeholder="Nom de la tâche"
               />
               <input
                 type="date"
                 value={task.startDate}
                 onChange={(e) => updateTask(task.id, 'startDate', e.target.value)}
-                className="w-40 border rounded px-3 py-2"
+                className="form-input input-md"
               />
               <input
                 type="date"
                 value={task.endDate}
                 onChange={(e) => updateTask(task.id, 'endDate', e.target.value)}
-                className="w-40 border rounded px-3 py-2"
+                className="form-input input-md"
               />
               <select
                 value={task.resourceId}
                 onChange={(e) => updateTask(task.id, 'resourceId', parseInt(e.target.value))}
-                className="border rounded px-3 py-2"
+                className="form-select"
               >
                 {resources.map(r => (
                   <option key={r.id} value={r.id}>{r.name}</option>
@@ -589,53 +409,47 @@ export default function PlanningTimeline() {
               <select
                 value={task.line}
                 onChange={(e) => updateTask(task.id, 'line', parseInt(e.target.value))}
-                className="w-24 border rounded px-3 py-2"
+                className="form-select input-sm"
               >
                 {Array.from({ length: numLines }).map((_, i) => (
                   <option key={i + 1} value={i + 1}>L{i + 1}</option>
                 ))}
               </select>
-              <button
-                onClick={() => deleteTask(task.id)}
-                className="p-2 text-red-500 hover:bg-red-50 rounded"
-              >
-                <Trash2 className="w-4 h-4" />
+              <button onClick={() => deleteTask(task.id)} className="btn btn-red">
+                <Trash2 className="icon" />
               </button>
             </div>
           ))}
         </div>
-        <button
-          onClick={addTask}
-          className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-        >
-          <Plus className="w-4 h-4" />
+        <button onClick={addTask} className="btn btn-green">
+          <Plus className="icon" />
           Ajouter une tâche
         </button>
       </div>
 
       {/* Section Jalons */}
-      <div className="bg-white p-6 rounded-lg shadow mb-6">
-        <h2 className="text-xl font-semibold mb-4">Jalons</h2>
-        <div className="space-y-3 mb-4">
+      <div className="section-card">
+        <h2 className="section-title">Jalons</h2>
+        <div className="item-list">
           {milestones.map(milestone => (
-            <div key={milestone.id} className="flex gap-2 items-center flex-wrap">
+            <div key={milestone.id} className="item-row">
               <input
                 type="text"
                 value={milestone.name}
                 onChange={(e) => updateMilestone(milestone.id, 'name', e.target.value)}
-                className="flex-1 min-w-[200px] border rounded px-3 py-2"
+                className="form-input input-flex"
                 placeholder="Nom du jalon"
               />
               <input
                 type="date"
                 value={milestone.date}
                 onChange={(e) => updateMilestone(milestone.id, 'date', e.target.value)}
-                className="w-40 border rounded px-3 py-2"
+                className="form-input input-md"
               />
               <select
                 value={milestone.type}
                 onChange={(e) => updateMilestone(milestone.id, 'type', e.target.value)}
-                className="border rounded px-3 py-2"
+                className="form-select"
               >
                 <option value="meeting">👥 Réunion</option>
                 <option value="document">📄 Document</option>
@@ -646,65 +460,53 @@ export default function PlanningTimeline() {
               <select
                 value={milestone.line}
                 onChange={(e) => updateMilestone(milestone.id, 'line', parseInt(e.target.value))}
-                className="w-24 border rounded px-3 py-2"
+                className="form-select input-sm"
               >
                 {Array.from({ length: numLines }).map((_, i) => (
                   <option key={i + 1} value={i + 1}>L{i + 1}</option>
                 ))}
               </select>
-              <button
-                onClick={() => deleteMilestone(milestone.id)}
-                className="p-2 text-red-500 hover:bg-red-50 rounded"
-              >
-                <Trash2 className="w-4 h-4" />
+              <button onClick={() => deleteMilestone(milestone.id)} className="btn btn-red">
+                <Trash2 className="icon" />
               </button>
             </div>
           ))}
         </div>
-        <button
-          onClick={addMilestone}
-          className="flex items-center gap-2 bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
-        >
-          <Plus className="w-4 h-4" />
+        <button onClick={addMilestone} className="btn btn-purple">
+          <Plus className="icon" />
           Ajouter un jalon
         </button>
       </div>
 
       {/* Section Lignes verticales */}
-      <div className="bg-white p-6 rounded-lg shadow mb-6">
-        <h2 className="text-xl font-semibold mb-4">Lignes Verticales</h2>
-        <div className="space-y-3 mb-4">
+      <div className="section-card">
+        <h2 className="section-title">Lignes Verticales</h2>
+        <div className="item-list">
           {verticalLines.map(vLine => (
-            <div key={vLine.id} className="flex gap-2 items-center">
+            <div key={vLine.id} className="item-row">
               <input
                 type="date"
                 value={vLine.date}
                 onChange={(e) => updateVerticalLine(vLine.id, 'date', e.target.value)}
-                className="w-40 border rounded px-3 py-2"
+                className="form-input input-md"
               />
-              <button
-                onClick={() => deleteVerticalLine(vLine.id)}
-                className="p-2 text-red-500 hover:bg-red-50 rounded"
-              >
-                <Trash2 className="w-4 h-4" />
+              <button onClick={() => deleteVerticalLine(vLine.id)} className="btn btn-red">
+                <Trash2 className="icon" />
               </button>
             </div>
           ))}
         </div>
-        <button
-          onClick={addVerticalLine}
-          className="flex items-center gap-2 bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600"
-        >
-          <Plus className="w-4 h-4" />
+        <button onClick={addVerticalLine} className="btn btn-orange">
+          <Plus className="icon" />
           Ajouter une ligne verticale
         </button>
       </div>
 
       {/* Visualisation du Planning */}
-      <div className="bg-white p-6 rounded-lg shadow">
-        <h2 className="text-xl font-semibold mb-4">Aperçu du Planning</h2>
-        <div className="overflow-x-auto">
-          <svg ref={svgRef} width={numWeeks * 40 + 100} height={numLines * 40 + 200} className="border">
+      <div className="section-card">
+        <h2 className="section-title">Aperçu du Planning</h2>
+        <div className="svg-container">
+          <svg ref={svgRef} width={numWeeks * 40 + 100} height={numLines * 40 + 200}>
             {/* Légende des ressources en haut */}
             <g>
               <text x="50" y="25" fontSize="12" fontWeight="bold" fill="#333">Légende :</text>
@@ -730,12 +532,12 @@ export default function PlanningTimeline() {
                 </g>
               ))}
             </g>
-            
+
             {/* Lignes horizontales - L1 en bas, L5 en haut */}
             {Array.from({ length: numLines }).map((_, index) => {
               const lineNumber = index + 1;
               const y = 130 + (numLines - lineNumber) * 40;
-              
+
               return (
                 <g key={`line-${lineNumber}`}>
                   <line
@@ -759,7 +561,7 @@ export default function PlanningTimeline() {
                 </g>
               );
             })}
-            
+
             {/* Timeline horizontale */}
             <line x1="50" y1={130 + numLines * 40} x2={numWeeks * 40 + 50} y2={130 + numLines * 40} stroke="#333" strokeWidth="2" />
 
@@ -767,10 +569,10 @@ export default function PlanningTimeline() {
             {milestones.map(milestone => {
               const relativeWeek = getMilestonePosition(milestone.date);
               if (relativeWeek < 0 || relativeWeek >= numWeeks) return null;
-              
+
               const timelineY = 130 + numLines * 40;
               const x = 50 + relativeWeek * 40 + 20;
-              
+
               return (
                 <line
                   key={`vline-${milestone.id}`}
@@ -789,10 +591,10 @@ export default function PlanningTimeline() {
             {verticalLines.map(vLine => {
               const relativeWeek = getTaskPosition(vLine.date);
               if (relativeWeek < 0 || relativeWeek >= numWeeks) return null;
-              
+
               const timelineY = 130 + numLines * 40;
               const x = 50 + relativeWeek * 40 + 20;
-              
+
               return (
                 <line
                   key={`custom-vline-${vLine.id}`}
@@ -811,16 +613,15 @@ export default function PlanningTimeline() {
               const resource = resources.find(r => r.id === task.resourceId);
               const taskLine = Math.min(Math.max(task.line, 1), numLines);
               const y = 130 + (numLines - taskLine) * 40;
-              
+
               const startPos = getTaskPosition(task.startDate);
               const endPos = getTaskPosition(task.endDate);
-              
+
               if (startPos >= numWeeks || endPos < 0) return null;
-              
+
               const x1 = 50 + startPos * 40 + 20;
               const x2 = 50 + endPos * 40 + 20;
-              
-              // Formater les dates au format jj/mm/aa
+
               const formatDateShort = (dateStr) => {
                 const date = new Date(dateStr);
                 const day = String(date.getDate()).padStart(2, '0');
@@ -828,7 +629,7 @@ export default function PlanningTimeline() {
                 const year = String(date.getFullYear()).slice(-2);
                 return `${day}/${month}/${year}`;
               };
-              
+
               return (
                 <g key={task.id}>
                   <rect
@@ -848,7 +649,6 @@ export default function PlanningTimeline() {
                   >
                     {task.name}
                   </text>
-                  {/* Date de fin sous la tâche */}
                   <text
                     x={x2}
                     y={y + 25}
@@ -874,7 +674,7 @@ export default function PlanningTimeline() {
                 const monthLabel = getMonthLabel(i);
                 const showMonth = isMonth && monthLabel !== lastMonthLabel;
                 if (showMonth) lastMonthLabel = monthLabel;
-                
+
                 return (
                   <g key={i}>
                     <circle
@@ -913,32 +713,27 @@ export default function PlanningTimeline() {
             {milestones.map(milestone => {
               const relativeWeek = getMilestonePosition(milestone.date);
               if (relativeWeek < 0 || relativeWeek >= numWeeks) return null;
-              
+
               const x = 50 + relativeWeek * 40 + 20;
               const milestoneLine = Math.min(Math.max(milestone.line || 1, 1), numLines);
               const y = 130 + (numLines - milestoneLine) * 40;
               const iconInfo = getMilestoneIcon(milestone.type);
-              
-              // Formater la date
+
               const dateObj = new Date(milestone.date);
               const formattedDate = dateObj.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-              
+
               return (
                 <g key={milestone.id}>
-                  {/* Formes SVG pour "production" et "divers", emoji pour les autres */}
                   {milestone.type === 'production' ? (
                     <polygon
                       points={`${x},${y-12} ${x+3.5},${y-3.5} ${x+12},${y-3.5} ${x+5},${y+2} ${x+7.5},${y+11} ${x},${y+6} ${x-7.5},${y+11} ${x-5},${y+2} ${x-12},${y-3.5} ${x-3.5},${y-3.5}`}
                       fill="#e74c3c"
                     />
                   ) : milestone.type === 'divers' ? (
-                    <g>
-                      {/* Losange bleu */}
-                      <polygon
-                        points={`${x},${y-12} ${x+8},${y} ${x},${y+12} ${x-8},${y}`}
-                        fill="#3498db"
-                      />
-                    </g>
+                    <polygon
+                      points={`${x},${y-12} ${x+8},${y} ${x},${y+12} ${x-8},${y}`}
+                      fill="#3498db"
+                    />
                   ) : (
                     <text
                       x={x}
@@ -949,7 +744,6 @@ export default function PlanningTimeline() {
                       {iconInfo.emoji}
                     </text>
                   )}
-                  {/* Nom du jalon au-dessus */}
                   <text
                     x={x}
                     y={y - 25}
@@ -960,7 +754,6 @@ export default function PlanningTimeline() {
                   >
                     {milestone.name}
                   </text>
-                  {/* Date en-dessous */}
                   <text
                     x={x}
                     y={y + 32}
