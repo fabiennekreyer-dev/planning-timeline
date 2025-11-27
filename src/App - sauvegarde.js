@@ -1,12 +1,8 @@
 import './App.css';
 import React, { useState, useRef } from 'react';
 import { Plus, Trash2, Save, Upload, Download } from 'lucide-react';
-import { useToast, ToastContainer } from './components/Toast';
 
 export default function PlanningTimeline() {
-  // Hook pour les notifications toast
-  const { toasts, addToast, removeToast } = useToast();
-
   const getTodayDate = () => {
     const today = new Date();
     const year = today.getFullYear();
@@ -112,9 +108,9 @@ export default function PlanningTimeline() {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
 
-      addToast('Planning sauvegardé avec succès !', 'success');
+      alert('Planning sauvegardé avec succès !');
     } catch (error) {
-      addToast('Erreur lors de la sauvegarde : ' + error.message, 'error');
+      alert('Erreur lors de la sauvegarde : ' + error.message);
       console.error('Erreur de sauvegarde:', error);
     }
   };
@@ -141,15 +137,15 @@ export default function PlanningTimeline() {
         if (planningData.milestones && Array.isArray(planningData.milestones)) setMilestones(planningData.milestones);
         if (planningData.verticalLines && Array.isArray(planningData.verticalLines)) setVerticalLines(planningData.verticalLines);
 
-        addToast('Planning chargé avec succès !', 'success');
+        alert('Planning chargé avec succès !');
       } catch (error) {
-        addToast('Erreur lors du chargement du planning : ' + error.message, 'error');
+        alert('Erreur lors du chargement du planning : ' + error.message);
         console.error('Erreur de chargement:', error);
       }
     };
 
     reader.onerror = () => {
-      addToast('Erreur lors de la lecture du fichier', 'error');
+      alert('Erreur lors de la lecture du fichier');
     };
 
     reader.readAsText(file);
@@ -163,7 +159,7 @@ export default function PlanningTimeline() {
     try {
       const svg = svgRef.current;
       if (!svg) {
-        addToast('Planning non disponible pour l\'export', 'warning');
+        alert('Planning non disponible pour l\'export');
         return;
       }
 
@@ -205,17 +201,17 @@ export default function PlanningTimeline() {
           document.body.removeChild(link);
           URL.revokeObjectURL(url);
 
-          addToast('Export PNG réussi !', 'success');
+          alert('Export PNG réussi !');
         });
       };
 
       img.onerror = () => {
-        addToast('Erreur lors de la génération de l\'image', 'error');
+        alert('Erreur lors de la génération de l\'image');
       };
 
       img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
     } catch (error) {
-      addToast('Erreur lors de l\'export PNG : ' + error.message, 'error');
+      alert('Erreur lors de l\'export PNG : ' + error.message);
       console.error('Erreur d\'export:', error);
     }
   };
@@ -266,9 +262,6 @@ export default function PlanningTimeline() {
 
   return (
     <div className="app-container">
-      {/* Conteneur de notifications toast */}
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
-
       <div className="app-header">
         <div className="header-left">
           <h1 className="app-title">Générateur de Planning Timeline</h1>
