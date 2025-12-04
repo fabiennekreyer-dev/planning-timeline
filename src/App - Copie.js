@@ -240,6 +240,22 @@ export default function PlanningTimeline() {
     return weekNo;
   };
 
+  // Calcul de la largeur dynamique par semaine avec limites
+  const getWeekWidth = () => {
+    const MIN_WEEK_WIDTH = 30; // Largeur minimale par semaine
+    const CONTAINER_WIDTH = 1200; // Largeur de référence du conteneur
+    const MARGIN = 100; // Marge pour les labels à gauche
+    
+    const availableWidth = CONTAINER_WIDTH - MARGIN;
+    const calculatedWidth = availableWidth / numWeeks;
+    
+    // Appliquer uniquement la limite MIN (pas de MAX)
+    return Math.max(calculatedWidth, MIN_WEEK_WIDTH);
+  };
+
+  const weekWidth = getWeekWidth();
+  const leftMargin = 50; // Marge à gauche pour les labels
+
   const getMonthLabel = (weekIndex) => {
     const start = new Date(startDate);
     start.setDate(start.getDate() + (weekIndex * 7));
@@ -513,7 +529,7 @@ export default function PlanningTimeline() {
       <div className="section-card">
         <h2 className="section-title">Aperçu du Planning</h2>
         <div className="svg-container">
-          <svg ref={svgRef} width={numWeeks * 40 + 100} height={numLines * 40 + 200}>
+          <svg ref={svgRef} width={numWeeks * weekWidth + 100} height={numLines * 40 + 200}>
             {/* Légende des ressources en haut */}
             <g>
               <text x="50" y="25" fontSize="12" fontWeight="bold" fill="#333">Légende :</text>
@@ -550,7 +566,7 @@ export default function PlanningTimeline() {
                   <line
                     x1="50"
                     y1={y}
-                    x2={numWeeks * 40 + 50}
+                    x2={numWeeks * weekWidth + 50}
                     y2={y}
                     stroke="#e0e0e0"
                     strokeWidth="1"
@@ -570,7 +586,7 @@ export default function PlanningTimeline() {
             })}
 
             {/* Timeline horizontale */}
-            <line x1="50" y1={130 + numLines * 40} x2={numWeeks * 40 + 50} y2={130 + numLines * 40} stroke="#333" strokeWidth="2" />
+            <line x1="50" y1={130 + numLines * 40} x2={numWeeks * weekWidth + 50} y2={130 + numLines * 40} stroke="#333" strokeWidth="2" />
 
             {/* Lignes verticales automatiques sur les jalons (fines en pointillés) */}
             {milestones.map(milestone => {
@@ -578,7 +594,7 @@ export default function PlanningTimeline() {
               if (relativeWeek < 0 || relativeWeek >= numWeeks) return null;
 
               const timelineY = 130 + numLines * 40;
-              const x = 50 + relativeWeek * 40 + 20;
+              const x = 50 + relativeWeek * weekWidth + weekWidth / 2;
 
               return (
                 <line
@@ -600,7 +616,7 @@ export default function PlanningTimeline() {
               if (relativeWeek < 0 || relativeWeek >= numWeeks) return null;
 
               const timelineY = 130 + numLines * 40;
-              const x = 50 + relativeWeek * 40 + 20;
+              const x = 50 + relativeWeek * weekWidth + weekWidth / 2;
 
               return (
                 <line
@@ -626,8 +642,8 @@ export default function PlanningTimeline() {
 
               if (startPos >= numWeeks || endPos < 0) return null;
 
-              const x1 = 50 + startPos * 40 + 20;
-              const x2 = 50 + endPos * 40 + 20;
+              const x1 = 50 + startPos * weekWidth + weekWidth / 2;
+              const x2 = 50 + endPos * weekWidth + weekWidth / 2;
 
               const formatDateShort = (dateStr) => {
                 const date = new Date(dateStr);
@@ -685,13 +701,13 @@ export default function PlanningTimeline() {
                 return (
                   <g key={i}>
                     <circle
-                      cx={50 + i * 40 + 20}
+                      cx={50 + i * weekWidth + weekWidth / 2}
                       cy={timelineY}
                       r={isMonth ? 6 : 3}
                       fill={isMonth ? '#333' : '#666'}
                     />
                     <text
-                      x={50 + i * 40 + 20}
+                      x={50 + i * weekWidth + weekWidth / 2}
                       y={timelineY + 20}
                       textAnchor="middle"
                       fontSize="10"
@@ -701,7 +717,7 @@ export default function PlanningTimeline() {
                     </text>
                     {showMonth && (
                       <text
-                        x={50 + i * 40 + 20}
+                        x={50 + i * weekWidth + weekWidth / 2}
                         y={timelineY + 35}
                         textAnchor="middle"
                         fontSize="14"
@@ -721,7 +737,7 @@ export default function PlanningTimeline() {
               const relativeWeek = getMilestonePosition(milestone.date);
               if (relativeWeek < 0 || relativeWeek >= numWeeks) return null;
 
-              const x = 50 + relativeWeek * 40 + 20;
+              const x = 50 + relativeWeek * weekWidth + weekWidth / 2;
               const milestoneLine = Math.min(Math.max(milestone.line || 1, 1), numLines);
               const y = 130 + (numLines - milestoneLine) * 40;
               const iconInfo = getMilestoneIcon(milestone.type);

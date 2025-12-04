@@ -285,6 +285,7 @@ export default function PlanningTimeline() {
       {/* Conteneur de notifications toast */}
       <ToastContainer toasts={toasts} onRemove={removeToast} />
 
+      {/* Header */}
       <div className="app-header">
         <div className="header-left">
           <h1 className="app-title">Générateur de Planning Timeline</h1>
@@ -322,11 +323,16 @@ export default function PlanningTimeline() {
         </div>
       </div>
 
-      <div className="grid-2col">
-        {/* Section Timeline */}
-        <div className="section-card">
-          <h2 className="section-title">Configuration Timeline</h2>
-          <div>
+
+      {/* Layout principal : 2 colonnes */}
+      <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
+        
+        {/* COLONNE GAUCHE : Sections de configuration */}
+        <div style={{ flex: '0 0 40%', maxHeight: 'calc(100vh - 120px)', overflowY: 'auto' }}>
+          
+          {/* Configuration Timeline */}
+          <div className="section-card" style={{ marginBottom: '16px' }}>
+            <h2 className="section-title">Configuration Timeline</h2>
             <div className="form-group">
               <label className="form-label">Nombre de semaines</label>
               <input
@@ -334,6 +340,7 @@ export default function PlanningTimeline() {
                 value={numWeeks}
                 onChange={(e) => setNumWeeks(parseInt(e.target.value) || 1)}
                 className="form-input"
+                style={{ width: '120px' }}
                 min="1"
                 max="104"
               />
@@ -345,192 +352,252 @@ export default function PlanningTimeline() {
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
                 className="form-input"
+                style={{ width: '160px' }}
               />
             </div>
             <div className="form-group">
-              <label className="form-label">Nombre de lignes horizontales</label>
+              <label className="form-label">Nombre de lignes</label>
               <input
                 type="number"
                 value={numLines}
                 onChange={(e) => setNumLines(parseInt(e.target.value) || 1)}
                 className="form-input"
+                style={{ width: '120px' }}
                 min="1"
                 max="10"
               />
             </div>
           </div>
-        </div>
 
-        {/* Section Types de Ressources */}
-        <div className="section-card">
-          <h2 className="section-title">Types de Ressources (max 5)</h2>
-          <div className="item-list">
-            {resources.map(resource => (
-              <div key={resource.id} className="item-row">
-                <input
-                  type="text"
-                  value={resource.name}
-                  onChange={(e) => updateResource(resource.id, 'name', e.target.value)}
-                  className="form-input input-flex"
-                  placeholder="Nom"
-                />
-                <input
-                  type="color"
-                  value={resource.color}
-                  onChange={(e) => updateResource(resource.id, 'color', e.target.value)}
-                  className="color-picker"
-                />
-                <button onClick={() => deleteResource(resource.id)} className="btn btn-red">
-                  <Trash2 className="icon" />
-                </button>
-              </div>
-            ))}
+          {/* Ressources */}
+          <div className="section-card" style={{ marginBottom: '16px' }}>
+            <h2 className="section-title">Types de Ressources (max 5)</h2>
+            
+            {/* En-têtes */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 80px 40px', gap: '8px', marginBottom: '8px', paddingBottom: '8px', borderBottom: '2px solid #e5e7eb' }}>
+              <div style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280' }}>Nom</div>
+              <div style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280' }}>Couleur</div>
+              <div style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280' }}></div>
+            </div>
+
+            <div className="item-list">
+              {resources.map(resource => (
+                <div key={resource.id} style={{ display: 'grid', gridTemplateColumns: '1fr 80px 40px', gap: '8px', marginBottom: '8px' }}>
+                  <input
+                    type="text"
+                    value={resource.name}
+                    onChange={(e) => updateResource(resource.id, 'name', e.target.value)}
+                    className="form-input"
+                    placeholder="Nom"
+                    style={{ fontSize: '13px', padding: '6px 10px' }}
+                  />
+                  <input
+                    type="color"
+                    value={resource.color}
+                    onChange={(e) => updateResource(resource.id, 'color', e.target.value)}
+                    className="color-picker"
+                    style={{ width: '80px', height: '34px' }}
+                  />
+                  <button
+                    onClick={() => deleteResource(resource.id)}
+                    className="btn btn-red"
+                    style={{ padding: '6px', height: '34px', width: '34px' }}
+                    title="Supprimer"
+                  >
+                    <Trash2 className="icon" style={{ width: '14px', height: '14px' }} />
+                  </button>
+                </div>
+              ))}
+            </div>
+            {resources.length < 5 && (
+              <button onClick={addResource} className="btn btn-blue" style={{ fontSize: '13px', padding: '6px 12px' }}>
+                <Plus className="icon" style={{ width: '14px', height: '14px' }} />
+                Ajouter
+              </button>
+            )}
           </div>
-          {resources.length < 5 && (
-            <button onClick={addResource} className="btn btn-blue">
-              <Plus className="icon" />
-              Ajouter une ressource
+
+          {/* Barres de tâches */}
+          <div className="section-card" style={{ marginBottom: '16px' }}>
+            <h2 className="section-title">Barres de tâches</h2>
+            
+            {/* En-têtes */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 100px 100px 110px 70px 40px', gap: '6px', marginBottom: '8px', paddingBottom: '8px', borderBottom: '2px solid #e5e7eb', fontSize: '11px', fontWeight: '600', color: '#6b7280' }}>
+              <div>Nom</div>
+              <div>Début</div>
+              <div>Fin</div>
+              <div>Ressource</div>
+              <div>Position</div>
+              <div></div>
+            </div>
+
+            <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+              {tasks.map(task => (
+                <div key={task.id} style={{ display: 'grid', gridTemplateColumns: '1.5fr 100px 100px 110px 70px 40px', gap: '6px', marginBottom: '8px' }}>
+                  <input
+                    type="text"
+                    value={task.name}
+                    onChange={(e) => updateTask(task.id, 'name', e.target.value)}
+                    className="form-input"
+                    placeholder="Nom"
+                    style={{ fontSize: '12px', padding: '5px 8px' }}
+                  />
+                  <input
+                    type="date"
+                    value={task.startDate}
+                    onChange={(e) => updateTask(task.id, 'startDate', e.target.value)}
+                    className="form-input"
+                    style={{ fontSize: '11px', padding: '5px 6px' }}
+                  />
+                  <input
+                    type="date"
+                    value={task.endDate}
+                    onChange={(e) => updateTask(task.id, 'endDate', e.target.value)}
+                    className="form-input"
+                    style={{ fontSize: '11px', padding: '5px 6px' }}
+                  />
+                  <select
+                    value={task.resourceId}
+                    onChange={(e) => updateTask(task.id, 'resourceId', parseInt(e.target.value))}
+                    className="form-select"
+                    style={{ fontSize: '12px', padding: '5px 6px' }}
+                  >
+                    {resources.map(r => (
+                      <option key={r.id} value={r.id}>{r.name}</option>
+                    ))}
+                  </select>
+                  <input
+                    type="number"
+                    value={task.line}
+                    onChange={(e) => updateTask(task.id, 'line', parseInt(e.target.value) || 1)}
+                    className="form-input"
+                    min="1"
+                    max={maxLine}
+                    style={{ fontSize: '12px', padding: '5px 8px' }}
+                  />
+                  <button
+                    onClick={() => deleteTask(task.id)}
+                    className="btn btn-red"
+                    style={{ padding: '5px', height: '30px', width: '30px' }}
+                    title="Supprimer"
+                  >
+                    <Trash2 className="icon" style={{ width: '14px', height: '14px' }} />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <button onClick={addTask} className="btn btn-green" style={{ fontSize: '13px', padding: '6px 12px', marginTop: '8px' }}>
+              <Plus className="icon" style={{ width: '14px', height: '14px' }} />
+              Ajouter
             </button>
-          )}
-        </div>
-      </div>
+          </div>
 
-      {/* Section Tâches */}
-      <div className="section-card">
-        <h2 className="section-title">Barres de Tâches</h2>
-        <div className="item-list">
-          {tasks.map(task => (
-            <div key={task.id} className="item-row">
-              <input
-                type="text"
-                value={task.name}
-                onChange={(e) => updateTask(task.id, 'name', e.target.value)}
-                className="form-input input-flex"
-                placeholder="Nom de la tâche"
-              />
-              <input
-                type="date"
-                value={task.startDate}
-                onChange={(e) => updateTask(task.id, 'startDate', e.target.value)}
-                className="form-input input-md"
-              />
-              <input
-                type="date"
-                value={task.endDate}
-                onChange={(e) => updateTask(task.id, 'endDate', e.target.value)}
-                className="form-input input-md"
-              />
-              <select
-                value={task.resourceId}
-                onChange={(e) => updateTask(task.id, 'resourceId', parseInt(e.target.value))}
-                className="form-select"
-              >
-                {resources.map(r => (
-                  <option key={r.id} value={r.id}>{r.name}</option>
-                ))}
-              </select>
-              <select
-                value={task.line}
-                onChange={(e) => updateTask(task.id, 'line', parseInt(e.target.value))}
-                className="form-select input-sm"
-              >
-                {Array.from({ length: numLines }).map((_, i) => (
-                  <option key={i + 1} value={i + 1}>L{i + 1}</option>
-                ))}
-              </select>
-              <button onClick={() => deleteTask(task.id)} className="btn btn-red">
-                <Trash2 className="icon" />
-              </button>
+          {/* Jalons */}
+          <div className="section-card" style={{ marginBottom: '16px' }}>
+            <h2 className="section-title">Jalons</h2>
+            
+            {/* En-têtes */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 100px 100px 70px 40px', gap: '6px', marginBottom: '8px', paddingBottom: '8px', borderBottom: '2px solid #e5e7eb', fontSize: '11px', fontWeight: '600', color: '#6b7280' }}>
+              <div>Nom</div>
+              <div>Date</div>
+              <div>Icône</div>
+              <div>Position</div>
+              <div></div>
             </div>
-          ))}
-        </div>
-        <button onClick={addTask} className="btn btn-green">
-          <Plus className="icon" />
-          Ajouter une tâche
-        </button>
-      </div>
 
-      {/* Section Jalons */}
-      <div className="section-card">
-        <h2 className="section-title">Jalons</h2>
-        <div className="item-list">
-          {milestones.map(milestone => (
-            <div key={milestone.id} className="item-row">
-              <input
-                type="text"
-                value={milestone.name}
-                onChange={(e) => updateMilestone(milestone.id, 'name', e.target.value)}
-                className="form-input input-flex"
-                placeholder="Nom du jalon"
-              />
-              <input
-                type="date"
-                value={milestone.date}
-                onChange={(e) => updateMilestone(milestone.id, 'date', e.target.value)}
-                className="form-input input-md"
-              />
-              <select
-                value={milestone.type}
-                onChange={(e) => updateMilestone(milestone.id, 'type', e.target.value)}
-                className="form-select"
-              >
-                <option value="meeting">👥 Réunion</option>
-                <option value="document">📄 Document</option>
-                <option value="app">📱 Application</option>
-                <option value="production">⭐ Mise en production</option>
-                <option value="divers">◆ Divers</option>
-              </select>
-              <select
-                value={milestone.line}
-                onChange={(e) => updateMilestone(milestone.id, 'line', parseInt(e.target.value))}
-                className="form-select input-sm"
-              >
-                {Array.from({ length: numLines }).map((_, i) => (
-                  <option key={i + 1} value={i + 1}>L{i + 1}</option>
-                ))}
-              </select>
-              <button onClick={() => deleteMilestone(milestone.id)} className="btn btn-red">
-                <Trash2 className="icon" />
-              </button>
+            <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+              {milestones.map(milestone => (
+                <div key={milestone.id} style={{ display: 'grid', gridTemplateColumns: '1.5fr 100px 100px 70px 40px', gap: '6px', marginBottom: '8px' }}>
+                  <input
+                    type="text"
+                    value={milestone.name}
+                    onChange={(e) => updateMilestone(milestone.id, 'name', e.target.value)}
+                    className="form-input"
+                    placeholder="Nom"
+                    style={{ fontSize: '12px', padding: '5px 8px' }}
+                  />
+                  <input
+                    type="date"
+                    value={milestone.date}
+                    onChange={(e) => updateMilestone(milestone.id, 'date', e.target.value)}
+                    className="form-input"
+                    style={{ fontSize: '11px', padding: '5px 6px' }}
+                  />
+                  <select
+                    value={milestone.type}
+                    onChange={(e) => updateMilestone(milestone.id, 'type', e.target.value)}
+                    className="form-select"
+                    style={{ fontSize: '11px', padding: '5px 6px' }}
+                  >
+                    <option value="meeting">👥 Réunion</option>
+                    <option value="document">📄 Document</option>
+                    <option value="app">📱 App</option>
+                    <option value="production">⭐ Prod</option>
+                    <option value="divers">◆ Divers</option>
+                  </select>
+                  <input
+                    type="number"
+                    value={milestone.line || 1}
+                    onChange={(e) => updateMilestone(milestone.id, 'line', parseInt(e.target.value) || 1)}
+                    className="form-input"
+                    min="1"
+                    max={maxLine}
+                    style={{ fontSize: '12px', padding: '5px 8px' }}
+                  />
+                  <button
+                    onClick={() => deleteMilestone(milestone.id)}
+                    className="btn btn-red"
+                    style={{ padding: '5px', height: '30px', width: '30px' }}
+                    title="Supprimer"
+                  >
+                    <Trash2 className="icon" style={{ width: '14px', height: '14px' }} />
+                  </button>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-        <button onClick={addMilestone} className="btn btn-purple">
-          <Plus className="icon" />
-          Ajouter un jalon
-        </button>
-      </div>
+            <button onClick={addMilestone} className="btn btn-purple" style={{ fontSize: '13px', padding: '6px 12px', marginTop: '8px' }}>
+              <Plus className="icon" style={{ width: '14px', height: '14px' }} />
+              Ajouter
+            </button>
+          </div>
 
-      {/* Section Lignes verticales */}
-      <div className="section-card">
-        <h2 className="section-title">Lignes Verticales</h2>
-        <div className="item-list">
-          {verticalLines.map(vLine => (
-            <div key={vLine.id} className="item-row">
-              <input
-                type="date"
-                value={vLine.date}
-                onChange={(e) => updateVerticalLine(vLine.id, 'date', e.target.value)}
-                className="form-input input-md"
-              />
-              <button onClick={() => deleteVerticalLine(vLine.id)} className="btn btn-red">
-                <Trash2 className="icon" />
-              </button>
+          {/* Lignes verticales */}
+          <div className="section-card">
+            <h2 className="section-title">Lignes verticales personnalisées</h2>
+            <div className="item-list">
+              {verticalLines.map(vLine => (
+                <div key={vLine.id} className="item-row" style={{ marginBottom: '8px' }}>
+                  <input
+                    type="date"
+                    value={vLine.date}
+                    onChange={(e) => updateVerticalLine(vLine.id, 'date', e.target.value)}
+                    className="form-input"
+                    style={{ flex: 1, fontSize: '12px', padding: '6px 10px' }}
+                  />
+                  <button
+                    onClick={() => deleteVerticalLine(vLine.id)}
+                    className="btn btn-red"
+                    style={{ padding: '6px', width: '34px', height: '34px' }}
+                    title="Supprimer"
+                  >
+                    <Trash2 className="icon" style={{ width: '14px', height: '14px' }} />
+                  </button>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-        <button onClick={addVerticalLine} className="btn btn-orange">
-          <Plus className="icon" />
-          Ajouter une ligne verticale
-        </button>
-      </div>
+            <button onClick={addVerticalLine} className="btn btn-orange" style={{ fontSize: '13px', padding: '6px 12px', marginTop: '8px' }}>
+              <Plus className="icon" style={{ width: '14px', height: '14px' }} />
+              Ajouter
+            </button>
+          </div>
 
-      {/* Visualisation du Planning */}
-      <div className="section-card">
-        <h2 className="section-title">Aperçu du Planning</h2>
-        <div className="svg-container">
-          <svg ref={svgRef} width={numWeeks * weekWidth + 100} height={numLines * 40 + 200}>
-            {/* Légende des ressources en haut */}
+        </div>
+
+        {/* COLONNE DROITE : Aperçu du Planning */}
+        <div style={{ flex: '1', background: 'white', padding: '24px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', maxHeight: 'calc(100vh - 120px)', overflowY: 'auto' }}>
+          <h2 className="section-title">Aperçu du Planning</h2>
+          <div className="svg-container">
+            <svg ref={svgRef} width={numWeeks * weekWidth + 100} height={numLines * 40 + 200}>
             <g>
               <text x="50" y="25" fontSize="12" fontWeight="bold" fill="#333">Légende :</text>
               {resources.map((resource, index) => (
@@ -791,6 +858,7 @@ export default function PlanningTimeline() {
               );
             })}
           </svg>
+          </div>
         </div>
       </div>
     </div>
