@@ -720,9 +720,6 @@ export default function PlanningTimeline() {
                 return `${day}/${month}/${year}`;
               };
 
-              // Vérifier s'il existe un jalon à la même date de début
-              const hasMilestoneAtStartDate = milestones.some(m => m.date === task.startDate);
-
               return (
                 <g key={task.id}>
                   <rect
@@ -734,29 +731,14 @@ export default function PlanningTimeline() {
                     opacity="0.7"
                     rx="5"
                   />
-                  {/* Nom de la tâche en gras */}
                   <text
                     x={x1 + 5}
                     y={y + 5}
                     fontSize="10"
-                    fontWeight="bold"
                     fill="#333"
                   >
                     {task.name}
                   </text>
-                  {/* Date de début (si pas de jalon à cette date) - EN DESSOUS */}
-                  {!hasMilestoneAtStartDate && (
-                    <text
-                      x={x1}
-                      y={y + 25}
-                      fontSize="8"
-                      fill="#666"
-                      textAnchor="middle"
-                    >
-                      {formatDateShort(task.startDate)}
-                    </text>
-                  )}
-                  {/* Date de fin - EN DESSOUS */}
                   <text
                     x={x2}
                     y={y + 25}
