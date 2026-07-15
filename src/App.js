@@ -773,23 +773,25 @@ export default function PlanningTimeline() {
             {/* Semaines et mois */}
             {(() => {
               const timelineY = 130 + numLines * 40;
-              let lastMonthLabel = '';
+              let lastMonthKey = null;
               return Array.from({ length: numWeeks }).map((_, i) => {
-                const isMonth = i % 4 === 0;
                 const currentDate = new Date(startDate);
                 currentDate.setDate(currentDate.getDate() + (i * 7));
                 const weekNum = getWeekNumber(currentDate);
                 const monthLabel = getMonthLabel(i);
-                const showMonth = isMonth && monthLabel !== lastMonthLabel;
-                if (showMonth) lastMonthLabel = monthLabel;
+                // Détection du changement de mois réel (calendaire), semaine par semaine,
+                // au lieu d'un repère fixe tous les 4 semaines qui dérive dans le temps.
+                const monthKey = `${currentDate.getFullYear()}-${currentDate.getMonth()}`;
+                const showMonth = monthKey !== lastMonthKey;
+                if (showMonth) lastMonthKey = monthKey;
 
                 return (
                   <g key={i}>
                     <circle
                       cx={50 + i * weekWidth + weekWidth / 2}
                       cy={timelineY}
-                      r={isMonth ? 6 : 3}
-                      fill={isMonth ? '#333' : '#666'}
+                      r={showMonth ? 6 : 3}
+                      fill={showMonth ? '#333' : '#666'}
                     />
                     <text
                       x={50 + i * weekWidth + weekWidth / 2}
