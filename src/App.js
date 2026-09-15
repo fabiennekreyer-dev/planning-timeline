@@ -749,8 +749,9 @@ export default function PlanningTimeline() {
                     <text
                       x={x1}
                       y={y + 25}
-                      fontSize="8"
-                      fill="#666"
+                      fontSize="10"
+                      fontWeight="bold"
+                      fill="#8B0000"
                       textAnchor="middle"
                     >
                       {formatDateShort(task.startDate)}
@@ -760,8 +761,9 @@ export default function PlanningTimeline() {
                   <text
                     x={x2}
                     y={y + 25}
-                    fontSize="8"
-                    fill="#666"
+                    fontSize="10"
+                    fontWeight="bold"
+                    fill="#8B0000"
                     textAnchor="middle"
                   >
                     {formatDateShort(task.endDate)}
