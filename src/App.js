@@ -254,7 +254,6 @@ export default function PlanningTimeline() {
   };
 
   const weekWidth = getWeekWidth();
-  const leftMargin = 50; // Marge à gauche pour les labels
 
   const getMonthLabel = (weekIndex) => {
     const start = new Date(startDate);
