@@ -756,17 +756,19 @@ export default function PlanningTimeline() {
                       {formatDateShort(task.startDate)}
                     </text>
                   )}
-                  {/* Date de fin - EN DESSOUS */}
-                  <text
-                    x={x2}
-                    y={y + 25}
-                    fontSize="10"
-                    fontWeight="bold"
-                    fill="#8B0000"
-                    textAnchor="middle"
-                  >
-                    {formatDateShort(task.endDate)}
-                  </text>
+                  {/* Date de fin (si pas de jalon à cette date) - EN DESSOUS */}
+                  {!milestones.some(m => m.date === task.endDate) && (
+                    <text
+                      x={x2}
+                      y={y + 25}
+                      fontSize="10"
+                      fontWeight="bold"
+                      fill="#8B0000"
+                      textAnchor="middle"
+                    >
+                      {formatDateShort(task.endDate)}
+                    </text>
+                  )}
                 </g>
               );
             })}
